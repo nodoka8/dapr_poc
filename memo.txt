@@ -1,0 +1,31 @@
+client dapr設定
+
+http:
+ client→http api:成功
+ client→grpc api:成功
+
+grpc:
+ client→http api:成功
+ client→grpc api:成功
+
+client(http)→http api(http):成功
+client(http)→http api(grpc):失敗
+
+client(http)→grpc api(grpc):成功
+client(http)→grpc api(http):成功
+
+client(grpc)→http api(http):成功
+client(grpc)→http api(grpc):失敗
+
+client(grpc)→grpc api(grpc):成功
+client(grpc)→grpc api(http):成功
+
+
+失敗時のhttp apiサーバーのエラー
+http_service_1       | 172.18.0.4 - - [02/Oct/2024 16:25:53] code 505, message Invalid HTTP version (2.0)
+http_service_1       | 172.18.0.4 - - [02/Oct/2024 16:25:53] "PRI * HTTP/2.0" HTTPStatus.HTTP_VERSION_NOT_SUPPORTED - 
+
+
+client_app_1         | HTTP Service Response: connection error: desc = "error reading server preface: http2: frame too large"
+
+grpcに設定しているdaprがhttp apiサーバーに接続しようとしたときのみ失敗している。

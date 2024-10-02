@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  grpc_service:
+    build: ./grpc_service
+    ports:
+      - "50051:50051"
+
+
+
+  dapr_grpc_service:
+    image: "daprio/daprd:latest"
+    command: [
+      "./daprd",
+      "-app-id", "grpc_service",
+      "-app-port", "50051",
+      "-dapr-http-port", "3500",
+      "-dapr-grpc-port", "50001",
+      "-app-protocol", "http",
+      "-app-channel-address", "grpc_service",
+      "-enable-api-logging", "true"
+    ]
+    ports:
+      - "3500:3500"
+      - "50001:50001"
+    depends_on:
+      - grpc_service
+
+  http_service:
+    build: ./http_service
+    ports:
+      - "5000:5000"
+
+
+  dapr_http_service:
+    image: "daprio/daprd:latest"
+    command: [
+      "./daprd",
+      "-app-id", "http_service",
+      "-app-port", "5000",
+      "-dapr-http-port", "3501",
+      "-dapr-grpc-port", "50002",
+      "-app-protocol", "grpc",
+      "-app-channel-address", "http_service",
+      "-enable-api-logging", "true"
+    ]
+    ports:
+      - "3501:3501"
+      - "50002:50002"
+    depends_on:
+      - http_service
+
+  client_app:
+    build: ./client_app
+    depends_on:
+      - grpc_service
+      - http_service
+ 
+
+  dapr_client_app:
+    image: "daprio/daprd:latest"
+    command: [
+      "./daprd",
+      "-app-id", "client_app",
+      "-dapr-http-port", "3502",
+      "-dapr-grpc-port", "50003",
+      "-app-protocol", "grpc",
+      "-enable-api-logging", "true"
+
+    ]
+    ports:
+      - "3502:3502"
+      - "50003:50003"
+    depends_on:
+      - client_app
